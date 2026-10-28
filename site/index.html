@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d18">
+  <meta name="description" content="Proyecto académico de automatización CI/CD con Docker, Kubernetes y GitHub Actions. Universidad Mariano Gálvez de Guatemala.">
+  <title>DevOps Lab 10 · UMG | Maidy Aldana</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080d18;
+      --bg2: #0d1525;
+      --card: #111c2c;
+      --card2: #121d30;
+      --line: rgba(160,190,229,.16);
+      --white: #f3f7ff;
+      --muted: #9baec6;
+      --teal: #45ebca;
+      --blue: #72a7ff;
+      --purple: #9987f7;
+      --mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+      --sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+    *,*::before,*::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; font-family: var(--sans); color: var(--white); background:var(--bg); }
+    body::before { content:""; pointer-events:none; position:fixed; inset:0; z-index:-2; background: radial-gradient(circle at 78% 7%, #1b2d59aa 0%, transparent 34%), radial-gradient(circle at 5% 45%, #053f4742 0%, transparent 31%), linear-gradient(180deg,#090e19,#080d18 56%,#0a1120); }
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; }
+    .wrap { width:min(1150px,calc(100% - 64px)); margin:0 auto; }
+    .grid-bg { position:absolute; pointer-events:none; inset:0; z-index:-1; background-image: linear-gradient(#a4b8dc0a 1px,transparent 1px),linear-gradient(90deg,#a4b8dc0a 1px,transparent 1px); background-size: 56px 56px; -webkit-mask-image: linear-gradient(#000 0%,transparent 95%); mask-image: linear-gradient(#000 0%,transparent 95%); }
+    .nav-shell { position:relative; border-bottom:1px solid var(--line); background:#080d18a8; backdrop-filter:blur(20px); z-index:10; }
+    .nav { display:flex; align-items:center; justify-content:space-between; min-height:83px; gap:20px; }
+    .brand { display:flex; align-items:center; gap:12px; font-size:17px; font-weight:850; letter-spacing:-.045em; }
+    .brand-mark { width:43px; height:43px; display:grid;place-items:center; border-radius:13px; color:#051a1c; font-weight:950; font-size:23px; transform:rotate(-7deg); background:linear-gradient(145deg,#64ffdf,#21bcae); box-shadow:0 10px 34px #2ee6c43c; }
+    .brand small { display:block; margin-top:2px; font-size:9px; color:var(--muted); font-weight:850; letter-spacing:.26em; text-transform:uppercase; }
+    .nav-links { display:flex; align-items:center; gap:27px; }
+    .nav-links a { font-size:13px; color:#bbc9da; font-weight:650; transition:color .2s; }
+    .nav-links a:hover,.nav-links a:focus-visible {color:var(--teal)}
+    .nav-tag { padding:9px 14px; border:1px solid #43e5bd45; background:#32d4b116; border-radius:999px; font:700 11px var(--mono); color:var(--teal); white-space:nowrap; }
+    .hero { isolation:isolate; position:relative; padding:97px 0 105px; overflow:hidden; }
+    .hero::after {content:""; position:absolute; width:750px; height:500px; background:#256d8c12; filter:blur(100px); top:-100px; right:-200px; z-index:-1; }
+    .hero-layout { display:grid; grid-template-columns:1.04fr .96fr; align-items:center; gap:34px; }
+    .eyebrow { display:inline-flex; align-items:center; gap:9px; font:800 11px var(--mono); letter-spacing:.14em; color:var(--teal); text-transform:uppercase; }
+    .eyebrow::before {content:"";display:inline-block;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 0 5px #45ebca16,0 0 20px #45ebca7a}
+    h1 { max-width:670px; margin:23px 0 24px; font-size:clamp(58px,7.4vw,97px); line-height:.99; letter-spacing:-.078em; font-weight:900; background:linear-gradient(104deg,#ecf9ff 2%,#5cf9d4 49%,#8ac4ff 85%);color:transparent;background-clip:text;-webkit-background-clip:text; }
+    h1 .line {display:block;}
+    h1 .accent { display:block; background:linear-gradient(100deg,#5cf9d4 8%,#8ac4ff 76%,#ac9ef5 100%); color:transparent; background-clip:text; -webkit-background-clip:text; }
+    .intro {max-width:525px;font-size:17px;line-height:1.85;color:#b1bfd3;margin:0 0 32px;}
+    .actions {display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+    .btn {display:inline-flex;align-items:center;gap:10px;justify-content:center;border-radius:12px;padding:14px 19px;font-size:13px;font-weight:800;border:1px solid var(--line);transition:transform .2s,box-shadow .2s,background .2s;cursor:pointer;}
+    .btn:hover {transform:translateY(-2px)}
+    .btn-primary { background:linear-gradient(120deg,#45eccc,#3ab7d7);border-color:transparent;color:#062026;box-shadow:0 10px 35px #1caeaa3b; }
+    .btn-quiet {background:#ffffff09;color:#d5e4f5;}
+    .btn-quiet:hover {background:#ffffff11;}
+    .btn .arrow {font-size:18px;line-height:1}
+    .hero-meta {display:flex;gap:15px;align-items:center;flex-wrap:wrap;margin-top:31px;color:#90a6c0;font:600 11px var(--mono)}
+    .hero-meta .divider {width:4px;height:4px;background:#6c809a;border-radius:50%;}
+    .visual {position:relative;padding:14px;border-radius:28px;background:linear-gradient(150deg,#293c5a70,#0c1a3065);border:1px solid #7d9cc03b;box-shadow:0 30px 100px #0009,0 0 90px #3d91aa13;}
+    .visual-head {display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:15px 18px 17px;font-size:12px;font-weight:750;color:#c4d6ed;}
+    .traffic {display:flex;gap:7px}.traffic span {width:8px;height:8px;border-radius:50%;background:#637389}.traffic span:nth-child(1){background:#ff767a}.traffic span:nth-child(2){background:#f8c765}.traffic span:nth-child(3){background:#4cdfaf}
+    .visual-window {background:linear-gradient(150deg,#0d1626,#0b1728);border:1px solid #c7dbff12;border-radius:19px;min-height:417px;overflow:hidden;position:relative;}
+    .orbit {position:absolute;left:50%;top:48%;width:340px;height:340px;transform:translate(-50%,-50%);border:1px dashed #67e7d83d;border-radius:50%;}
+    .orbit::after {content:"";position:absolute;inset:35px;border:1px solid #4ebedd17;border-radius:50%;}
+    .center-node {position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:136px;height:136px;display:grid;place-items:center;align-content:center;gap:5px;border:1px solid #7afbe879;border-radius:33px;background:radial-gradient(circle at 30% 20%,#2b686f,#09282f 75%);box-shadow:0 0 0 14px #17a9a719,0 0 56px #36edc436;color:var(--teal)}
+    .center-node strong{font-size:26px;letter-spacing:-.06em}.center-node span{font:800 9px var(--mono);letter-spacing:.23em;}
+    .satellite {position:absolute;width:130px;padding:13px 12px;border-radius:13px;border:1px solid #6686aa51;background:linear-gradient(140deg,#1c2b43,#121f33);box-shadow:0 14px 30px #0007;}
+    .satellite svg{display:block;width:22px;height:22px;margin-bottom:8px;color:var(--teal)}
+    .satellite strong{font-size:12px;display:block;margin-bottom:2px}.satellite span{font:600 10px var(--mono);color:#93a6be}
+    .sat1{top:48px;left:24px;transform:rotate(-4deg)}.sat2{top:56px;right:18px;transform:rotate(4deg)}.sat3{bottom:45px;left:50%;transform:translateX(-50%)}
+    .visual-bottom {display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 20px;font:650 11px var(--mono);color:#8aa1bc}
+    .pulse-dot {width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;margin-right:6px;box-shadow:0 0 15px #46efcc;}
+    .kpis {display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:-33px;position:relative;z-index:3;box-shadow:0 14px 60px #0004}
+    .kpi {background:#0f1929;padding:24px 20px}.kpi strong{display:block;font-size:26px;letter-spacing:-.055em}.kpi small{display:block;margin-top:5px;color:#90a6c0;font-size:12px}
+    section.content {padding:110px 0 0}
+    .section-top {display:flex;gap:20px;align-items:end;justify-content:space-between;margin-bottom:30px}
+    .overline{font:800 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+    h2{font-size:clamp(31px,4vw,48px);line-height:1.09;letter-spacing:-.055em;margin:13px 0}
+    .section-sub {color:#9dafc6;font-size:14px;line-height:1.7;max-width:435px;margin:0}
+    .tech-grid {display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+    .tech-card {position:relative;min-height:268px;padding:28px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(160deg,#172336,#0e1624);overflow:hidden;transition:transform .24s,border-color .24s,box-shadow .24s}
+    .tech-card:hover {transform:translateY(-5px);border-color:#58d6c265;box-shadow:0 25px 60px #0005;}
+    .tech-card::after{content:"";position:absolute;width:170px;height:170px;right:-95px;top:-70px;border-radius:50%;background:#58ddcb15;filter:blur(16px);}
+    .tech-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#46d6c019;color:var(--teal);border:1px solid #48d7bf2b;margin-bottom:34px}.tech-card:nth-child(2) .tech-icon {background:#6ea6ff1a;color:#83b6ff;border-color:#6ea6ff34}.tech-card:nth-child(3) .tech-icon {background:#a68bf51b;color:#ab9cfa;border-color:#a68bf534}
+    .tech-icon svg{width:27px;height:27px}.tech-label{font:800 11px var(--mono);color:#92a9c2;letter-spacing:.04em}.tech-card h3{font-size:24px;letter-spacing:-.04em;margin:10px 0}.tech-card p{color:#9cacc1;line-height:1.7;font-size:13px;margin:0}
+    .flow-section {padding-top:110px}
+    .flow {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:32px}
+    .flow-card {min-height:174px;position:relative;padding:24px;border-radius:17px;border:1px solid var(--line);background:#101a2b;}
+    .flow-card::after {content:"→";position:absolute;right:-15px;top:49%;z-index:1;font-size:18px;color:var(--teal);font-weight:bold}.flow-card:last-child::after{display:none}
+    .flow-card .index{font:800 11px var(--mono);color:var(--teal);display:block;margin-bottom:23px}.flow-card h3{font-size:17px;margin:0 0 9px}.flow-card p{color:#91a8bf;font-size:12px;line-height:1.6;margin:0}
+    .demo-section{padding:112px 0}
+    .terminal{border:1px solid #718fac3b;border-radius:20px;overflow:hidden;box-shadow:0 28px 90px #0007;background:#0b1321}
+    .terminal-top{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding:14px 17px;background:#121e2d}
+    .term-tabs{display:flex;flex-wrap:wrap;gap:7px}
+    .term-tab{padding:10px 14px;background:transparent;color:#95abc2;border:1px solid transparent;border-radius:9px;cursor:pointer;font:700 12px var(--mono);transition:background .2s,color .2s}
+    .term-tab[aria-selected="true"]{background:#42d6c115;color:var(--teal);border-color:#46e6c22d}
+    .term-tab:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+    .term-note{color:#9eb0c7;font:600 10px var(--mono);white-space:nowrap}
+    pre{margin:0;overflow:auto;padding:32px;color:#c4d6ec;font:500 13px/2 var(--mono);min-height:272px;tab-size:2}
+    .prompt{color:var(--teal)}.comment{color:#7893ab}.cmd{color:#e9f5ff}.flag{color:#b9a5ff}
+    .terminal-footer {display:flex;gap:10px;align-items:center;padding:12px 20px;border-top:1px solid var(--line);font:600 11px var(--mono);color:#859ab6;background:#0d1726;}
+    .copy-code{margin-left:auto;padding:7px 11px;border-radius:8px;background:#ffffff09;color:#cfe1f6;border:1px solid #cce3ff21;font:600 11px var(--mono);cursor:pointer;}
+    .copy-code:hover{background:#ffffff18}
+    .end-card{display:flex;justify-content:space-between;align-items:center;gap:25px;padding:38px;border-radius:23px;background:linear-gradient(110deg,#132b3a,#142137 61%,#212644);border:1px solid #65baaf4d;margin-bottom:80px}
+    .end-card h2{font-size:32px;margin:10px 0}.end-card p{max-width:540px;color:#a9bdd1;font-size:13px;line-height:1.75;margin:0}
+    .foot{border-top:1px solid var(--line);padding:26px 0 32px;display:flex;gap:18px;justify-content:space-between;align-items:center;font-size:12px;color:#8399b3}
+    .foot strong{color:#e9f6fc}.foot .smallcaps{text-transform:uppercase;font:800 10px var(--mono);letter-spacing:.11em}
+    @media(max-width:980px){.hero-layout{grid-template-columns:1fr}.hero{padding-top:70px}.visual{max-width:620px;width:100%;margin:35px auto 0}.hero-layout>.hero-copy{text-align:center}.intro{margin-left:auto;margin-right:auto}.actions,.hero-meta{justify-content:center}.tech-grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.flow-card:nth-child(2)::after{display:none}}
+    @media(max-width:700px){.wrap{width:min(100% - 34px,1150px)}.nav{min-height:72px}.nav-links a{display:none}.nav-tag{font-size:10px;padding:8px 9px}h1{font-size:clamp(55px,13vw,75px)}.hero{padding:55px 0 78px}.visual-window{min-height:355px}.orbit{width:265px;height:265px}.satellite{width:110px;padding:10px;}.sat1{left:9px;top:26px}.sat2{right:8px;top:29px}.sat3{bottom:27px}.center-node{width:112px;height:112px;border-radius:26px}.center-node strong{font-size:21px}.kpis{grid-template-columns:repeat(2,1fr)}.tech-grid,.flow{grid-template-columns:1fr}.flow-card::after{display:none}.section-top{display:block}section.content,.flow-section,.demo-section{padding-top:76px}.demo-section{padding-bottom:75px}.terminal-top{align-items:start;flex-direction:column}.end-card{display:block;padding:28px}.end-card .btn{margin-top:24px}.foot{flex-direction:column;text-align:center}.term-note{white-space:normal}pre{font-size:11px;padding:20px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto !important;transition:none !important}}
+  </style>
+</head>
+<body>
+  <div class="nav-shell">
+    <div class="wrap nav">
+      <a class="brand" href="#inicio" aria-label="Inicio del proyecto">
+        <span class="brand-mark" aria-hidden="true">D</span>
+        <span>DEVOPS LAB<small>Universidad Mariano Gálvez</small></span>
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="#tecnologias">Tecnologías</a>
+        <a href="#ciclo">Ciclo CI/CD</a>
+        <a href="#comandos">Laboratorio</a>
+        <span class="nav-tag">L10 / 2026</span>
+      </nav>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="grid-bg" aria-hidden="true"></div>
+      <div class="wrap hero-layout">
+        <div class="hero-copy">
+          <div class="eyebrow">Desarrollo Web · Integración continua</div>
+          <h1 id="hero-title">Laboratorio DevOps</h1>
+          <p class="intro">Del código al despliegue. Una experiencia práctica para comprender cómo los contenedores, la orquestación y la automatización transforman la entrega de aplicaciones web.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#ciclo">Explorar el flujo <span class="arrow" aria-hidden="true">↗</span></a>
+            <a class="btn btn-quiet" href="#comandos">Ver comandos <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+          <div class="hero-meta"><span>UMG · Ingeniería en Sistemas</span><span class="divider"></span><span>26 OCT 2026</span><span class="divider"></span><span>CI / CD</span></div>
+        </div>
+
+        <div class="visual" aria-label="Diagrama conceptual de integración de herramientas DevOps">
+          <div class="visual-window">
+            <div class="visual-head"><span><span class="pulse-dot" aria-hidden="true"></span>Arquitectura de automatización</span><div class="traffic" aria-hidden="true"><span></span><span></span><span></span></div></div>
+            <div class="orbit" aria-hidden="true"></div>
+            <div class="center-node"><strong>CI/CD</strong><span>AUTOMATION</span></div>
+            <div class="satellite sat1">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 8 3 3-3 3m5 0h3"/></svg>
+              <strong>Docker</strong><span>Contenedores</span>
+            </div>
+            <div class="satellite sat2">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 4v6m0 4v6m-8-8h6m4 0h6M6.3 6.3l4.2 4.2m3 3 4.2 4.2M17.7 6.3l-4.2 4.2m-3 3-4.2 4.2"/></svg>
+              <strong>Kubernetes</strong><span>Orquestación</span>
+            </div>
+            <div class="satellite sat3">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/><path d="M7 8v8m2-10h5a3 3 0 0 1 3 3v7"/></svg>
+              <strong>Actions</strong><span>Workflows</span>
+            </div>
+          </div>
+          <div class="visual-bottom"><span>STACK: Docker + K8s + GitHub</span><span>PROYECTO ACADÉMICO</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap kpis" aria-label="Resumen del proyecto">
+      <div class="kpi"><strong>03</strong><small>Tecnologías principales</small></div>
+      <div class="kpi"><strong>02</strong><small>Fases del laboratorio</small></div>
+      <div class="kpi"><strong>01</strong><small>Workflow CI/CD</small></div>
+      <div class="kpi"><strong>100%</strong><small>Enfoque práctico</small></div>
+    </div>
+
+    <section class="content wrap" id="tecnologias" aria-labelledby="tech-title">
+      <div class="section-top">
+        <div><div class="overline">01 / Fundamentos</div><h2 id="tech-title">Tres herramientas.<br>Un mismo objetivo.</h2></div>
+        <p class="section-sub">Construir aplicaciones reproducibles, mantener servicios disponibles y automatizar su entrega mediante buenas prácticas DevOps.</p>
+      </div>
+      <div class="tech-grid">
+        <article class="tech-card">
+          <div class="tech-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="11" width="5" height="4" rx=".5"/><rect x="8" y="11" width="5" height="4" rx=".5"/><rect x="14" y="11" width="5" height="4" rx=".5"/><rect x="8" y="6" width="5" height="4" rx=".5"/><rect x="14" y="6" width="5" height="4" rx=".5"/><path d="M2 17c3 4 13 5 18-1M20 13l2 2-2 2"/></svg></div>
+          <span class="tech-label">01 — CONTENEDORES</span><h3>Docker</h3><p>Empaqueta el sitio web dentro de una imagen Nginx para ejecutarlo de forma consistente y comprobar su respuesta HTTP.</p>
+        </article>
+        <article class="tech-card">
+          <div class="tech-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7m0 4v7M3 12h7m4 0h7M5.6 5.6l5 5m2.8 2.8 5 5m0-12.8-5 5m-2.8 2.8-5 5"/></svg></div>
+          <span class="tech-label">02 — ORQUESTACIÓN</span><h3>Kubernetes</h3><p>Administra pods, escala un Deployment a tres réplicas y reemplaza automáticamente una instancia eliminada.</p>
+        </article>
+        <article class="tech-card">
+          <div class="tech-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="6" cy="19" r="2"/><path d="M6 7v10M8 5h7a3 3 0 0 1 3 3v9"/></svg></div>
+          <span class="tech-label">03 — AUTOMATIZACIÓN</span><h3>GitHub Actions</h3><p>Valida archivos, construye y prueba el contenedor Docker, y publica el HTML estático mediante GitHub Pages.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="flow-section wrap" id="ciclo" aria-labelledby="flow-title">
+      <div class="overline">02 / Integración y despliegue</div><h2 id="flow-title">Del commit a la web.</h2>
+      <p class="section-sub">Un cambio en <code>main</code> activa un flujo automatizado que se detiene si alguna comprobación falla.</p>
+      <div class="flow" aria-label="Etapas del workflow">
+        <div class="flow-card"><span class="index">STEP / 01</span><h3>Push a GitHub</h3><p>El repositorio recibe una nueva versión del código.</p></div>
+        <div class="flow-card"><span class="index">STEP / 02</span><h3>Validación</h3><p>Se verifica la existencia y el contenido del sitio web.</p></div>
+        <div class="flow-card"><span class="index">STEP / 03</span><h3>Prueba Docker</h3><p>Nginx inicia en un contenedor y responde a una solicitud HTTP.</p></div>
+        <div class="flow-card"><span class="index">STEP / 04</span><h3>GitHub Pages</h3><p>Si las pruebas aprueban, se despliega el sitio HTML estático.</p></div>
+      </div>
+    </section>
+
+    <section class="demo-section wrap" id="comandos" aria-labelledby="code-title">
+      <div class="section-top"><div><div class="overline">03 / Laboratorio práctico</div><h2 id="code-title">Conoce los comandos.</h2></div><p class="section-sub">Explora instrucciones reales de la práctica. Estos bloques son ejemplos educativos, no una consola conectada a un servidor.</p></div>
+      <div class="terminal">
+        <div class="terminal-top">
+          <div class="term-tabs" role="tablist" aria-label="Seleccionar herramienta">
+            <button class="term-tab" type="button" role="tab" id="tab-docker" aria-selected="true" aria-controls="panel-code" data-tool="docker">Docker</button>
+            <button class="term-tab" type="button" role="tab" id="tab-kubernetes" aria-selected="false" aria-controls="panel-code" data-tool="kubernetes" tabindex="-1">Kubernetes</button>
+            <button class="term-tab" type="button" role="tab" id="tab-actions" aria-selected="false" aria-controls="panel-code" data-tool="actions" tabindex="-1">GitHub Actions</button>
+          </div>
+          <span class="term-note">REFERENCIA TÉCNICA · SIN EJECUCIÓN EN VIVO</span>
+        </div>
+        <pre id="panel-code" role="tabpanel" aria-labelledby="tab-docker"><code id="code-content">$ docker run -d --name web-lab -p 8080:80 nginx:alpine
+$ docker ps
+$ curl -I http://localhost:8080
+$ docker logs web-lab
+$ docker stop web-lab
+$ docker start web-lab
+$ docker rm -f web-lab</code></pre>
+        <div class="terminal-footer"><span><span class="pulse-dot" aria-hidden="true"></span> DOCUMENTACIÓN DE COMANDOS</span><button class="copy-code" id="copy-code" type="button">Copiar comandos</button></div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <section class="end-card" aria-labelledby="end-title">
+        <div><div class="overline">Proyecto académico · Desarrollo Web</div><h2 id="end-title">Construir. Validar. Publicar.</h2><p>La automatización ayuda a detectar fallos antes de entregar cambios. En este laboratorio, Docker se utiliza para las pruebas de Nginx y GitHub Pages publica la página estática.</p></div>
+        <a class="btn btn-primary" href="https://github.com/maidy-aldana16/laboratorio-devops" target="_blank" rel="noopener noreferrer">Ver repositorio <span class="arrow" aria-hidden="true">↗</span></a>
+      </section>
+    </div>
+  </main>
+  <footer class="foot wrap"><span><strong>Maidy Obed Aldana Saquic</strong> · Carné 5090-23-10241</span><span class="smallcaps">Universidad Mariano Gálvez · Octubre 2026</span></footer>
+  <script>
+    (() => {
+      const snippets = {
+        docker: '$ docker run -d --name web-lab -p 8080:80 nginx:alpine\n$ docker ps\n$ curl -I http://localhost:8080\n$ docker logs web-lab\n$ docker stop web-lab\n$ docker start web-lab\n$ docker rm -f web-lab',
+        kubernetes: '$ kubectl get nodes\n$ kubectl create deployment web-demo --image=nginx:alpine\n$ kubectl get deployments\n$ kubectl get pods\n$ kubectl scale deployment web-demo --replicas=3\n$ kubectl get pods\n$ kubectl delete pod NOMBRE_DEL_POD\n$ kubectl get pods',
+        actions: '# Archivo: .github/workflows/ci-cd.yml\n# Evento: push a main o workflow_dispatch\n# Trabajo validar:\n$ test -f site/index.html\n$ grep -q "Laboratorio' + ' DevOps" site/index.html\n$ docker build -t demo-web:1.0 .\n$ docker run -d --name demo-web -p 8080:80 demo-web:1.0\n$ curl --fail http://localhost:8080/\n# Trabajo publicar: GitHub Pages (solo HTML estático)'
+      };
+      const tabs = [...document.querySelectorAll('.term-tab')];
+      const code = document.getElementById('code-content');
+      const copy = document.getElementById('copy-code');
+      function activate(tab) {
+        tabs.forEach(t => {const active = t === tab;t.setAttribute('aria-selected',String(active));t.tabIndex = active ? 0 : -1;});
+        code.textContent = snippets[tab.dataset.tool];
+        document.getElementById('panel-code').setAttribute('aria-labelledby',tab.id);
+        copy.textContent = 'Copiar comandos';
+      }
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => activate(tab));
+        tab.addEventListener('keydown', e => {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault(); const target = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length]; activate(target); target.focus();
+          }
+        });
+      });
+      copy.addEventListener('click', async () => {
+        const value = code.textContent;
+        try { await navigator.clipboard.writeText(value); copy.textContent = '¡Copiado!'; }
+        catch { copy.textContent = 'Selecciona el texto'; }
+      });
+    })();
+  </script>
+</body>
+</html>
